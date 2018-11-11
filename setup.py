@@ -165,7 +165,7 @@ setup(
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     license='GPL',
-    packages=['starry', 'starry.maps'],
+    packages=['starry', 'starry.maps', 'starry.theano_ops'],
     ext_modules=ext_modules,
     install_requires=['pybind11>=2.2'],
     cmdclass={'build_ext': BuildExt},
