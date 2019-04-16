@@ -45,3 +45,4 @@ steps:
     conda activate test
     py.test -v -s tests/test_*.py
   displayName: 'Testing'
+
