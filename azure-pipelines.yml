@@ -1,0 +1,47 @@
+strategy:
+  matrix:
+    LinuxPython36:
+      imageName: 'Ubuntu-16.04'
+      python.version: '3.6'
+    LinuxPython37:
+      imageName: 'Ubuntu-16.04'
+      python.version: '3.7'
+    MacPython37:
+      imageName: 'macos-10.13'
+      python.version: '3.7'
+
+pool:
+  vmImage: $(imageName)
+
+steps:
+
+- script: |
+    sudo chown -R $USER $CONDA
+    . $CONDA/etc/profile.d/conda.sh
+    conda create --yes --quiet --name test python=$(python.version)
+  displayName: 'Setup conda'
+
+- script: |
+    . $CONDA/etc/profile.d/conda.sh
+    conda activate test
+    conda install -c conda-forge \
+          numpy \
+          scipy \
+          matplotlib \
+          setuptools \
+          pybind11 \
+          pytest \
+          pytest-cov \
+          pip \
+          healpy\
+          nbsphinx \
+          theano
+    pip install Pillow ipython jupyter sphinx tqdm
+    pip install https://github.com/rodluger/starry_beta/archive/master.zip
+  displayName: 'Install dependencies'
+
+- script: |
+    . $CONDA/etc/profile.d/conda.sh
+    conda activate test
+    py.test -v -s tests/test_*.py
+  displayName: 'Testing'
