@@ -66,7 +66,7 @@ class PythonMapBase(object):
 
     def render(self, theta=0, res=300, projection="ortho", **kwargs):
         """
-        Render the map on a grid and return the pixel intensities as a 
+        Render the map on a grid and return the pixel intensities as a
         two-dimensional array (with time as an optional third dimension).
 
         Args:
@@ -86,7 +86,7 @@ class PythonMapBase(object):
             source (ndarray): A unit vector corresponding to the direction to the \
                 light source. This may optionally be a vector of unit vectors. \
                 *Reflected light maps only*. Default :math:`-\hat{x}`.
-            
+
         """
         # Type-specific kwargs
         if projection.lower().startswith("rect"):
@@ -119,7 +119,7 @@ class PythonMapBase(object):
                 # function on an *emitted* light map!
                 from .. import Map
                 if self._temporal:
-                    map = Map(ydeg=self.ydeg, udeg=self.udeg, 
+                    map = Map(ydeg=self.ydeg, udeg=self.udeg,
                               fdeg=self.fdeg,
                               multi=self.multi, nt=self.nt)
                     map[:, :, :] = self[:, :, :]
@@ -128,10 +128,10 @@ class PythonMapBase(object):
                     if (self.fdeg):
                         map.filter[:, :] = self.filter[:, :]
                     map.axis = self.axis
-                    return map.render(theta=theta, res=res, 
+                    return map.render(theta=theta, res=res,
                                       projection=projection, t=t)
                 elif self._spectral:
-                    map = Map(ydeg=self.ydeg, udeg=self.udeg, 
+                    map = Map(ydeg=self.ydeg, udeg=self.udeg,
                               fdeg=self.fdeg,
                               multi=self.multi, nw=self.nw)
                     map[:, :, :] = self[:, :, :]
@@ -140,10 +140,10 @@ class PythonMapBase(object):
                     if (self.fdeg):
                         map.filter[:, :] = self.filter[:, :]
                     map.axis = self.axis
-                    return map.render(theta=theta, res=res, 
+                    return map.render(theta=theta, res=res,
                                       projection=projection)
                 else:
-                    map = Map(ydeg=self.ydeg, udeg=self.udeg, 
+                    map = Map(ydeg=self.ydeg, udeg=self.udeg,
                               fdeg=self.fdeg,
                               multi=self.multi)
                     map[:, :] = self[:, :]
@@ -152,7 +152,7 @@ class PythonMapBase(object):
                     if (self.fdeg):
                         map.filter[:, :] = self.filter[:, :]
                     map.axis = self.axis
-                    return map.render(theta=theta, res=res, 
+                    return map.render(theta=theta, res=res,
                                       projection=projection)
             else:
                 source = np.ascontiguousarray(source)
@@ -216,7 +216,7 @@ class PythonMapBase(object):
                 for i in range(len(source)):
                     source[i] = np.dot(R, source[i])
                 model_kwargs["source"] = source
-            
+
             # Compute the southern hemisphere map
             self.axis = [0, 0, -1]
             Z_south = np.array(self.intensity(x=-x, y=-y, **model_kwargs))
@@ -246,7 +246,7 @@ class PythonMapBase(object):
         else:
 
             # Create a grid of X and Y and construct the linear model
-            x, y = np.meshgrid(np.linspace(-1, 1, res), 
+            x, y = np.meshgrid(np.linspace(-1, 1, res),
                                np.linspace(-1, 1, res))
             Z = np.array(self.intensity(x=x, y=y, **model_kwargs))
             if self._spectral:
@@ -257,7 +257,7 @@ class PythonMapBase(object):
 
         return np.squeeze(Z)
 
-    def show(self, Z=None, cmap="plasma", projection="ortho", 
+    def show(self, Z=None, cmap="plasma", projection="ortho",
              grid=True, **kwargs):
         """
         Render and plot an image of the map; optionally display an animation.
@@ -326,7 +326,7 @@ class PythonMapBase(object):
 
             # Plot the lat/lon grid lines
             if grid:
-                
+
                 # Body outline
                 x = np.linspace(-1, 1, 10000)
                 y = np.sqrt(1 - x ** 2)
@@ -383,8 +383,8 @@ class PythonMapBase(object):
                     else:
                         # Rotate by the inclination
                         R = RAxisAngle([1, 0, 0], 90 - self.inc)
-                        v = np.vstack((x.reshape(1, -1), 
-                                       y.reshape(1, -1), 
+                        v = np.vstack((x.reshape(1, -1),
+                                       y.reshape(1, -1),
                                        z.reshape(1, -1)))
                         x, y1, _ = np.dot(R, v)
                         v[2] *= -1
@@ -410,12 +410,12 @@ class PythonMapBase(object):
                         ax.plot(xr, yr, 'k-', lw=0.5, alpha=0.5, zorder=100)
 
         # Plot the first frame of the image
-        img = ax.imshow(Z[0], origin="lower", 
+        img = ax.imshow(Z[0], origin="lower",
                         extent=extent, cmap=cmap,
                         interpolation="none",
-                        vmin=np.nanmin(Z), vmax=np.nanmax(Z), 
+                        vmin=np.nanmin(Z), vmax=np.nanmax(Z),
                         animated=animated)
-        
+
         # Show a colorbar
         # TODO: This isn't working on the Linux machine I tested it on...
         # The colorbar takes up the entire figure!
@@ -426,12 +426,12 @@ class PythonMapBase(object):
             cax = divider.append_axes('right', size='3%', pad=0.1)
             plt.colorbar(img, ax=ax, cax=cax)
         '''
-        
+
         # Display or save the image / animation
         if animated:
             interval = kwargs.pop("interval", 75)
             mp4 = kwargs.pop("mp4", None)
-            
+
             def updatefig(i):
                 img.set_array(Z[i])
                 return img,
@@ -507,7 +507,7 @@ class PythonMapBase(object):
         if kwargs.get("gradient", False):
             # Get the design matrix and its gradient
             X, grad = self.linear_flux_model(*args, **kwargs)
-            
+
             # The dot product with `y` gives us the flux
             f = np.dot(X, self.y)
             for key in grad.keys():
@@ -522,7 +522,7 @@ class PythonMapBase(object):
 
             # Copy df/dy to each wavelength bin
             if self._spectral:
-                grad['y'] = np.tile(grad['y'][:, :, np.newaxis], 
+                grad['y'] = np.tile(grad['y'][:, :, np.newaxis],
                                     (1, 1, self.nw))
 
             return f, grad
@@ -554,8 +554,8 @@ class PythonMapBase(object):
 
     def load(self, image, ydeg=None, healpix=False, col=None, **kwargs):
         """
-        Load an image, array, or :py:obj:`healpix` map. 
-        
+        Load an image, array, or :py:obj:`healpix` map.
+
         This routine uses
         various routines in :py:obj:`healpix` to compute the spherical
         harmonic expansion of the input image and sets the map's :py:attr:`y`
@@ -585,10 +585,10 @@ class PythonMapBase(object):
                 Default :py:obj:`None`.
 
         .. note:: Method not available for purely limb-darkened maps.
-        
+
         """
         if self._limbdarkened:
-            raise NotImplementedError("The `load` method is not " + 
+            raise NotImplementedError("The `load` method is not " +
                                       "implemented for limb-darkened maps.")
         if col is None:
             col = 0
@@ -598,7 +598,7 @@ class PythonMapBase(object):
             ydeg = self.ydeg
         assert (ydeg <= self.ydeg) and (ydeg > 0), \
             "Invalid spherical harmonic degree."
-        
+
         # Is this a file name?
         if type(image) is str:
             y = image2map(image, lmax=ydeg, **kwargs)
@@ -610,7 +610,7 @@ class PythonMapBase(object):
                 y = array2map(image, lmax=ydeg, **kwargs)
         else:
             raise ValueError("Invalid `image` value.")
-        
+
         # Ingest the coefficients
         if self._spectral or self._temporal:
             self[1:, :, :] = 0
@@ -618,7 +618,7 @@ class PythonMapBase(object):
         else:
             self[1:, :] = 0
             self[:ydeg + 1, :] = y
-    
+
     def align(self, source=None, dest=None):
         """
         Rotate the map to align the :py:obj:`source` point/axis with the
@@ -651,9 +651,9 @@ class PythonMapBase(object):
             source = self.axis
         if dest is None:
             dest = self.axis
-        self.rotate(axis=np.cross(source, dest), 
+        self.rotate(axis=np.cross(source, dest),
                     theta=np.arccos(np.dot(source, dest)) * 180 / np.pi)
-    
+
     def _extremum(self, minimum=True):
         """
         Find a global extremum of the map.
@@ -663,9 +663,9 @@ class PythonMapBase(object):
             this method.
         """
         # Keep the minimizer on the unit disk
-        cons = [{'type': 'ineq', 
+        cons = [{'type': 'ineq',
                  'fun':  lambda x: 1 - x[0] ** 2 - x[1] ** 2}]
-        
+
         # Start in the center
         x0 = [0, 0]
 
@@ -690,7 +690,7 @@ class PythonMapBase(object):
         # Front side, then back side
         res_f = minimize(func, x0, args=(0))
         res_b = minimize(func, x0, args=(180))
-        
+
         # Re-enable limb darkening & filter
         if self.udeg:
             self[1:] = u_copy
@@ -717,7 +717,7 @@ class PythonMapBase(object):
             minimum. This will be fixed in an upcoming version of the code.
         """
         return self._extremum(True)
-    
+
     def max(self):
         """
         Return the global maximum of the intensity.
@@ -732,12 +732,12 @@ class PythonMapBase(object):
             maximum. This will be fixed in an upcoming version of the code.
         """
         return self._extremum(False)
-    
+
     def is_physical(self):
         """
         Returns :py:obj:`True` if the map intensity is non-negative
-        everywhere. 
-        
+        everywhere.
+
         This routine uses `scipy.optimize.minimize` to attempt to find
         the global minimum. Note that both the limb darkening and the
         multiplicative filter are ignored.
@@ -748,23 +748,23 @@ class PythonMapBase(object):
             minimum. This will be fixed in an upcoming version of the code.
         """
         return self.min() >= 0
-    
+
     def flux_op(self, y=None, u=None, inc=None, obl=None,
               theta=0, orbit=None, t=None, xo=None, yo=None, zo=1, ro=0.1):
         """
-        Returns a 
-        `Theano Op <http://deeplearning.net/software/theano/extending/extending_theano.html>`_ 
+        Returns a
+        `Theano Op <http://deeplearning.net/software/theano/extending/extending_theano.html>`_
         for the flux computation.
 
         This method is similar to :py:meth:`flux` but it does not return a
-        light curve! Instead, it returns a 
+        light curve! Instead, it returns a
         :py:obj:`Theano` Op used for symbolic (lazy) gradient-based
         computations useful for integration with :py:obj:`exoplanet`
         and :py:obj:`pymc3`.
 
         The arguments below can either be normal Python or :py:obj:`numpy`
         types, in which case they are assumed to be constant, or :py:obj:`Theano`
-        tensor variables. They can also be set to :py:obj:`None` (default), in 
+        tensor variables. They can also be set to :py:obj:`None` (default), in
         which case they take on the constant values set in the :py:obj:`Map`
         object (or their default values, if they are not :py:obj:`Map`
         attributes). As usual, the parameters :py:obj:`theta`,
@@ -852,7 +852,7 @@ class PythonMapBase(object):
                 yo = tt.zeros(npts)
                 zo = tt.zeros(npts)
                 ro = tt.zeros(npts)
-            
+
             else:
 
                 # Occultation with manually specified coords
@@ -874,7 +874,7 @@ class PythonMapBase(object):
                 elif (theta.ndim != 0):
                     npts = infer_size(theta)
                 else:
-                    npts = 1 
+                    npts = 1
 
                 # Vectorize everything
                 if (xo.ndim == 0):
@@ -902,22 +902,22 @@ class PythonMapBase(object):
         return self._flux_op(*args)
 
     def linear_op(self, u=None, inc=None, obl=None,
-                  theta=0, orbit=None, t=None, xo=None, 
+                  theta=0, orbit=None, t=None, xo=None,
                   yo=None, zo=1, ro=0.1):
         """
-        Returns a 
-        `Theano Op <http://deeplearning.net/software/theano/extending/extending_theano.html>`_ 
+        Returns a
+        `Theano Op <http://deeplearning.net/software/theano/extending/extending_theano.html>`_
         for the computation of the linear flux model.
 
         This method is similar to :py:meth:`linear_flux_model` but it does not return a
-        design matrix! Instead, it returns a 
+        design matrix! Instead, it returns a
         :py:obj:`Theano` Op used for symbolic (lazy) gradient-based
         computations useful for integration with :py:obj:`exoplanet`
         and :py:obj:`pymc3`.
 
         The arguments below can either be normal Python or :py:obj:`numpy`
         types, in which case they are assumed to be constant, or :py:obj:`Theano`
-        tensor variables. They can also be set to :py:obj:`None` (default), in 
+        tensor variables. They can also be set to :py:obj:`None` (default), in
         which case they take on the constant values set in the :py:obj:`Map`
         object (or their default values, if they are not :py:obj:`Map`
         attributes). As usual, the parameters :py:obj:`theta`,
@@ -1000,7 +1000,7 @@ class PythonMapBase(object):
                 yo = tt.zeros(npts)
                 zo = tt.zeros(npts)
                 ro = tt.zeros(npts)
-            
+
             else:
 
                 # Occultation with manually specified coords
@@ -1022,7 +1022,7 @@ class PythonMapBase(object):
                 elif (theta.ndim != 0):
                     npts = infer_size(theta)
                 else:
-                    npts = 1 
+                    npts = 1
 
                 # Vectorize everything
                 if (xo.ndim == 0):
@@ -1047,4 +1047,4 @@ class PythonMapBase(object):
                 args[i] = getattr(np, tt.config.floatX)(arg)
 
         # Call the op
-        return self._linear_op(*args)
+        return self._linear_op(*args)[0]
